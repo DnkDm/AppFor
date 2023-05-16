@@ -5,15 +5,17 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:padding="10dp"
-    tools:context=".MainActivity2">
+    tools:context=".MainActivity2"
+    android:id="@+id/Liner">
 
 
     <ImageView
         android:id="@+id/image2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:layout_marginTop="30dp"
         />
 
     <TextView
@@ -23,6 +25,31 @@
         android:text="You win!!!"
         android:textColor="@color/black"
         android:textSize="36dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:gravity="center"
+        />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Some text about something "
+        android:textColor="@color/black"
+        android:textSize="16dp"
+        android:textStyle="normal"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="40dp"/>
+
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Продолжить"
+        android:layout_marginTop="30dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:background="@drawable/radius"
+        android:textAllCaps="false"/>
+
 
 </LinearLayout>

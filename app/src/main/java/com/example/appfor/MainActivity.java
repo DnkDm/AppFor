@@ -7,14 +7,17 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.graphics.PointF;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -48,15 +51,27 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements UserLocationObjectListener {
 
     private MapView mapView;
-    private List<PlacemarkMapObject> placemarkMapObjects;
+    private static List<PlacemarkMapObject> placemarkMapObjects;
     private MapObjectCollection mapObjectCollection;
     private LocationManager locationManager;
     private UserLocationLayer userLocationLayer;
     private CircleMapObject userCircle;
 
-    private TextView scoreCounter;
-    private TextView winTable;
-    private int score = 0;
+    private List<Integer> imageViewList = new ArrayList<>();
+    private List<String> stringOp = new ArrayList<>();
+
+    public static SharedPreferences sharedPreferences;
+    public static SharedPreferences.Editor editor;
+    public static SharedPreferences sharedPreferences2;
+    public static SharedPreferences.Editor editor2;
+
+    private static TextView scoreCounter;
+    private static TextView winTable;
+    private Button buttonMenu;
+
+    public static int score = 0;
+    public static String kod = "00000";
+
     private FusedLocationProviderClient fusedLocationClient;
     MapObjectTapListener mapObjectTapListener;
 
@@ -66,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements UserLocationObjec
 
         super.onCreate(savedInstanceState);
         MapKitFactory.setApiKey("119874c7-2cae-4d87-8264-98bec3a19540");
+
         MapKitFactory.initialize(this);
 
         // Укажите имя Activity вместо map.
@@ -87,9 +103,24 @@ public class MainActivity extends AppCompatActivity implements UserLocationObjec
 
         winTable = findViewById(R.id.winTable);
         winTable.setTextColor(Color.TRANSPARENT);
+
+        buttonMenu = findViewById(R.id.buttonMenu);
+        buttonMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(MainActivity.this, MainActivity3.class);
+                startActivity(intent1);
+            }
+        });
         scoreCounter = findViewById(R.id.scoreCounter);
         requestLocationPermission();
-        addMarkers();
+        //nen
+
+
+        sharedPreferences = this.getSharedPreferences("mySharedPreferences", Context.MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+        sharedPreferences2 = this.getSharedPreferences("mySharedPreferences2", Context.MODE_PRIVATE);
+        editor2 = sharedPreferences2.edit();
 
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -118,6 +149,19 @@ public class MainActivity extends AppCompatActivity implements UserLocationObjec
             }
         }, null);
 
+        kod = sharedPreferences2.getString("myString", "00000");
+
+        addMarkers();//nen
+
+
+        score = sharedPreferences.getInt("myInt", 0);
+        scoreCounter.setText("Score " + score + "/2");
+
+        /*ditor2.clear();
+        editor2.apply();
+        editor.clear();
+        editor.apply();*/
+
 
         mapObjectTapListener = new MapObjectTapListener() {
             @Override
@@ -127,8 +171,21 @@ public class MainActivity extends AppCompatActivity implements UserLocationObjec
                 toast.show();
                 if (placemarkMapObjects.get(idOfPlacemark).isVisible() == true){
                     score++;
+
+                    editor.putInt("myInt", score);
+                    editor.apply();
+
+                    char[] myNameChars = kod.toCharArray();
+                    myNameChars[idOfPlacemark] = '1';
+                    kod = String.valueOf(myNameChars);
+                    editor2.putString("myString", kod);
+                    editor2.apply();
+                    Log.d("had", kod);
+
                     Intent intent = new Intent(MainActivity.this, MainActivity2.class);
                     intent.putExtra("STRING", stringList.get(idOfPlacemark));
+                    intent.putExtra("STRING2", stringOp.get(idOfPlacemark));
+                    intent.putExtra("IMAGE", imageViewList.get(idOfPlacemark));
                     startActivity(intent);
                 }
                 placemarkMapObjects.get(idOfPlacemark).setVisible(false);
@@ -138,6 +195,27 @@ public class MainActivity extends AppCompatActivity implements UserLocationObjec
                 return false;
             }
         };
+    }
+
+    public static void rebutMap(int score, String kod){
+        winTable.setTextColor(Color.TRANSPARENT);
+
+        editor.putInt("myInt", score);
+        editor.apply();
+        score = sharedPreferences.getInt("myInt", 0);
+        scoreCounter.setText("Score " + score + "/2");
+
+        editor2.putString("myString", kod);
+        editor2.apply();
+        kod = sharedPreferences2.getString("myString", "00000");
+        Log.d("kodf",kod+"");
+        for (PlacemarkMapObject placemark : placemarkMapObjects) {
+            if (kod.charAt(placemarkMapObjects.indexOf(placemark)) == '0'){
+                placemark.setVisible(true);
+            } else {
+                placemark.setVisible(false);
+            }
+        }
     }
 
     int idOfPlacemark;
@@ -164,18 +242,74 @@ public class MainActivity extends AppCompatActivity implements UserLocationObjec
         mapObjectCollection = mapView.getMap().getMapObjects();
         PlacemarkMapObject placemark1 = mapObjectCollection.addPlacemark(new Point(56.840614, 60.616116), ImageProvider.fromResource(this, R.drawable.mynewred));
         PlacemarkMapObject placemark2 = mapObjectCollection.addPlacemark(new Point(56.841854, 60.593978), ImageProvider.fromResource(this, R.drawable.mynewred));
+        PlacemarkMapObject MyzeiArchIDis = mapObjectCollection.addPlacemark(new Point(56.8358, 60.6064), ImageProvider.fromResource(this, R.drawable.mynewred));
+        PlacemarkMapObject Yrgey = mapObjectCollection.addPlacemark(new Point(56.825754, 60.602730), ImageProvider.fromResource(this, R.drawable.mynewred));
+        PlacemarkMapObject DvorecSporta = mapObjectCollection.addPlacemark(new Point(56.8194, 60.6408), ImageProvider.fromResource(this, R.drawable.mynewred));
+
 
         placemark1.setIconStyle(new IconStyle().setScale(0.3f));
         placemark2.setIconStyle(new IconStyle().setScale(0.3f));
+        MyzeiArchIDis.setIconStyle(new IconStyle().setScale(0.3f));
+        Yrgey.setIconStyle(new IconStyle().setScale(0.3f));
+        DvorecSporta.setIconStyle(new IconStyle().setScale(0.3f));
 
         placemarkMapObjects.add(placemark1);
         placemarkMapObjects.add(placemark2);
+        placemarkMapObjects.add(MyzeiArchIDis);
+        placemarkMapObjects.add(Yrgey);
+        placemarkMapObjects.add(DvorecSporta);
 
-        String text1 = "Dostopr 1";
-        String text2 = "Dostopr 2";
+        Log.d("had", kod);
+        for (PlacemarkMapObject placemark : placemarkMapObjects) {
+            if (kod.charAt(placemarkMapObjects.indexOf(placemark)) == '0'){
+
+            } else {
+                placemark.setVisible(false);
+            }
+        }
+
+        String text1 = "УРФУ";
+        String text2 = "Правительство области";
+        String text3 = "Музей архитектуры и дизайна";
+        String text4 = "УРГЭУ";
+        String text5 = "";
+        String text6 = "";
+        String text7 = "";
+        String text8 = "";
+        String text9 = "";
+        String text10 = "";
+
+        String textOp1 = "Уральский федеральный университет является крупнейшим вузом Урала, ведущим научно-образовательным центром региона и одним из крупнейших вузов Российской Федерации. В нём обучаются около 35 000[3] студентов, в том числе около 32 000 студентов очной формы обучения (по этому показателю УрФУ сопоставим только с МГУ, СПбГУ и ЮФУ).";
+        String textOp2 = "Правительство Свердловской области — высший орган исполнительной власти Свердловской области. Руководство деятельностью правительства осуществляет высшее должностное лицо Свердловской области — губернатор Свердловской области.";
+        String textOp3 = "Музей архитектуры и дизайна УрГАХУ — расположен в Историческом сквере Екатеринбурга (на Плотинке)\n 18 ноября 1973 года в День 250-летия Свердловска состоялось торжественное открытие Исторического сквера. Среди создателей этого уникального комплекса были ректор Свердловского архитектурного института (САИ) Н. С. Алфёров и его ведущие преподаватели В. А. Пискунов, Г. И. Дубровин, А. Э. Коротковский, А. В. Овечкин, а также архитектор института «Свердловскгражданпроект» Л. П. Винокурова.";
+        String textOp4 = "Уральский государственный экономический университет (УрГЭУ) — федеральное государственное бюджетное образовательное учреждение высшего образования, расположенное в городе Екатеринбурге, которое готовит экономистов различного профиля, технологов, юристов и специалистов в области государственного и муниципального управления.";
+        String textOp5 = "";
+        String textOp6 = "";
+        String textOp7 = "";
+        String textOp8 = "";
+        String textOp9 = "";
+        String textOp10 = "";
+
+
+
 
         stringList.add(text1);
         stringList.add(text2);
+        stringList.add(text3);
+        stringList.add(text4);
+
+        stringOp.add(textOp1);
+        stringOp.add(textOp2);
+        stringOp.add(textOp3);
+        stringOp.add(textOp4);
+
+
+        imageViewList.add(R.drawable.urfu);
+        imageViewList.add(R.drawable.buildsome);
+        imageViewList.add(R.drawable.chorto);
+        imageViewList.add(R.drawable.yrt1);
+
+
     }
 
     private void requestLocationPermission(){
